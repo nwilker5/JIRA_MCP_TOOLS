@@ -15,7 +15,7 @@ The repo includes **Cursor skills** (`.cursor/skills/`) and **rules** (`.cursor/
 
 ## Repo access
 
-This repo lives at **https://github.com/nwilker/JIRA_MCP_TOOLS**. Ask the repo owner for **collaborator access** before cloning (it is a personal repo, not a Red Hat org repo).
+This repo lives at **https://github.com/nwilker5/JIRA_MCP_TOOLS**. Ask the repo owner for **collaborator access** before cloning (it is a personal repo, not a Red Hat org repo).
 
 ---
 
@@ -68,7 +68,7 @@ More detail: [README_MAC.md](README_MAC.md)
 ### 1. Clone and create a virtual environment
 
 ```bash
-git clone https://github.com/nwilker/JIRA_MCP_TOOLS.git
+git clone https://github.com/nwilker5/JIRA_MCP_TOOLS.git
 cd JIRA_MCP_TOOLS
 
 python3 -m venv jira_mcp_env
