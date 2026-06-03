@@ -87,4 +87,4 @@ Skill: `.cursor/skills/virtstrat-feature-assessment/SKILL.md`
 ## Reference
 
 - Playbook detail: `.cursor/skills/virtstrat-feature-assessment/reference.md`
-- RFE counterpart: `RFE_ASSESSMENT_GUIDE.md`, `assess_virt_rfe.py`
+- RFE counterpart: [docs/rfe-assessment.md](docs/rfe-assessment.md), `./run_virt_rfe_assessment.sh`

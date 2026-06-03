@@ -284,7 +284,7 @@ curl -s -u "${JIRA_USERNAME}:${JIRA_API_TOKEN}" \
 
 ## Related
 
-- RFE assessment: `.cursor/skills/rfe-quality-check-vme/SKILL.md`, `assess_virt_rfe.py`
+- RFE assessment: `.cursor/skills/rfe-quality-check-vme/SKILL.md`, `docs/rfe-assessment.md`
 - CNV epic hygiene (Feature parent on epics): `.cursor/skills/cnv-epic-hygiene/SKILL.md`
 - Playbook diagram: [reference.md](reference.md)
 - Gold standard example: [gold-standard.md](gold-standard.md) (**VIRTSTRAT-564**)

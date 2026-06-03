@@ -173,7 +173,7 @@ Once MCP is connected and `.env_jira` is set up, try prompts like:
 | *"Run the virtshortlist report"* | Reports VIRTSTRAT/HPSTRAT shortlist items and stale updates |
 | *"Preview CIPOE links for virtstrat"* | Dry-run copy of CIPOE links from CNV to VIRTSTRAT |
 | *"Assess VIRTSTRAT-600 feature quality"* | Scores a feature against the VirtStrat playbook |
-| *"Assess RFE-12345"* | RFE quality check against the VME rubric |
+| *"Assess MTV-5653 RFE quality"* | Virt RFE quality check (CNV or MTV) via `./run_virt_rfe_assessment.sh` |
 | *"Run the Friday ACCT report"* | Finds product issues still linked to ACCT instead of CIPOE |
 | *"Get Jira issue HPIA-1234"* | Reads issue details via MCP |
 
@@ -208,6 +208,7 @@ For scripts that make Jira **changes** (link copy, status transitions, etc.), Cl
 
 - [README.md](README.md) — overview and ACCT→CIPOE workflow
 - [README_MAC.md](README_MAC.md) — detailed macOS prerequisites
+- [docs/rfe-assessment.md](docs/rfe-assessment.md) — Virt RFE assessment (CNV & MTV)
 - [PRODUCTION_JIRA_SETUP.md](PRODUCTION_JIRA_SETUP.md) — Jira connection and MCP server details
 - `.cursor/skills/` — per-workflow agent instructions
 - `.cursor/rules/` — Jira attribution, CIPOE copy, HPIA, and other team rules

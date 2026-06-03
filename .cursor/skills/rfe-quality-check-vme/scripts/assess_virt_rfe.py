@@ -4,13 +4,11 @@ Virt RFE Quality Assessment Tool (CNV & MTV)
 Assesses Feature Requests against the shared Virt RFE quality rubric.
 
 Usage:
-    python assess_virt_rfe.py CNV-12345                         # auto-detect project from key
-    python assess_virt_rfe.py MTV-5653 --project mtv            # explicit project
-    python assess_virt_rfe.py --project cnv --new               # batch New CNV RFEs
-    python assess_virt_rfe.py MTV-5653 --comment --execute      # post assessment comment
+    ./run_virt_rfe_assessment.sh CNV-12345
+    python .cursor/skills/rfe-quality-check-vme/scripts/assess_virt_rfe.py MTV-5653 --project mtv --new
+    python .cursor/skills/rfe-quality-check-vme/scripts/assess_virt_rfe.py MTV-5653 --comment --execute
 
-Environment: JIRA_URL, JIRA_USERNAME, JIRA_API_TOKEN
-    source .env_wilker_jira && python assess_virt_rfe.py CNV-12345
+Environment: JIRA_URL, JIRA_USERNAME, JIRA_API_TOKEN (via load_jira_env.sh / .env_jira)
 """
 
 from __future__ import annotations
@@ -130,7 +128,7 @@ def require_credentials() -> None:
     ]
     if missing:
         print("Error: missing environment variables:", ", ".join(missing))
-        print("  source .env_wilker_jira")
+        print("  source load_jira_env.sh")
         sys.exit(1)
 
 

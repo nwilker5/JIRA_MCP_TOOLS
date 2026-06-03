@@ -1,26 +1,28 @@
-# Virt RFE Quality Assessment Tool (CNV & MTV)
+# Virt RFE Quality Assessment (CNV & MTV)
 
-One tool for assessing **Feature Request** quality in **CNV** and **MTV**, using the aligned Virt Feature Request playbook.
+Assess **Feature Request** quality in **CNV** and **MTV** using the aligned Virt Feature Request playbook.
 
-## Quick Start
+## Quick start
 
 ```bash
-source .env_wilker_jira
+source load_jira_env.sh
 
 # Auto-detect project from key
-python assess_virt_rfe.py CNV-12345
-python assess_virt_rfe.py MTV-5653
+./run_virt_rfe_assessment.sh CNV-12345
+./run_virt_rfe_assessment.sh MTV-5653
 
 # Pick project interactively (batch New RFEs)
-python assess_virt_rfe.py --new
+./run_virt_rfe_assessment.sh --new
 
 # Explicit project
-python assess_virt_rfe.py --project cnv --new
-python assess_virt_rfe.py --project mtv --new
+./run_virt_rfe_assessment.sh --project cnv --new
+./run_virt_rfe_assessment.sh --project mtv --new
+```
 
-# Launcher
-./run_virt_rfe_assessment.sh CNV-12345
-./run_virt_rfe_assessment.sh --project mtv MTV-5653
+Direct script path (from repo root):
+
+```bash
+python3 .cursor/skills/rfe-quality-check-vme/scripts/assess_virt_rfe.py MTV-5653
 ```
 
 ## Project selection
@@ -71,8 +73,7 @@ Same playbook exit criteria for CNV and MTV.
 
 ## Reference
 
-- **Script:** `assess_virt_rfe.py`
+- **Script:** `.cursor/skills/rfe-quality-check-vme/scripts/assess_virt_rfe.py`
 - **Launcher:** `run_virt_rfe_assessment.sh`
 - **Skill:** `.cursor/skills/rfe-quality-check-vme/SKILL.md`
-- **Legacy wrappers:** `assess_rfe.py`, `assess_mtv_rfe.py`, `run_rfe_assessment.sh`, `run_mtv_rfe_assessment.sh`
-- **VirtStrat Features:** `assess_virtstrat_feature.py`
+- **VirtStrat Features:** `assess_virtstrat_feature.py` (not yet reorganized)

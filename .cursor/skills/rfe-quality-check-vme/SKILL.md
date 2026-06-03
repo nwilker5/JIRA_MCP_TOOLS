@@ -8,23 +8,28 @@ description: >-
 
 # Virt RFE Quality Assessment (CNV & MTV)
 
-Assess **Feature Request** issues in project **CNV** or **MTV** against a shared Virt RFE quality rubric. One tool: `assess_virt_rfe.py`. Project is auto-detected from `CNV-*` / `MTV-*` keys, set with `--project`, or chosen interactively.
+Assess **Feature Request** issues in project **CNV** or **MTV** against a shared Virt RFE quality rubric.
+
+**Script:** `.cursor/skills/rfe-quality-check-vme/scripts/assess_virt_rfe.py`  
+**Launcher:** `./run_virt_rfe_assessment.sh`  
+**Guide:** [docs/rfe-assessment.md](../../../docs/rfe-assessment.md)
+
+Project is auto-detected from `CNV-*` / `MTV-*` keys, set with `--project`, or chosen interactively.
 
 ## Usage
 
 | Mode | Command |
 |------|---------|
-| **Auto-detect project** | `python assess_virt_rfe.py CNV-81784` or `MTV-5653` |
-| **Explicit project** | `python assess_virt_rfe.py --project cnv --new` |
-| **Interactive pick** | `python assess_virt_rfe.py --new` (prompts CNV or MTV) |
-| **Draft / display** | `python assess_virt_rfe.py MTV-5653` (default — no Jira writes) |
-| **Markdown file** | `python assess_virt_rfe.py MTV-5653 --output draft.md` |
-| **Comment preview** | `python assess_virt_rfe.py MTV-5653 --comment` |
-| **Comment execute** | `python assess_virt_rfe.py MTV-5653 --comment --execute` |
-| **JSON** | `python assess_virt_rfe.py CNV-81784 --json` |
-| **State check** | `python assess_virt_rfe.py MTV-5653 --check-state refinement` |
-
-Launcher: `./run_virt_rfe_assessment.sh CNV-81784` or `./run_virt_rfe_assessment.sh --project mtv --new`
+| **Launcher (recommended)** | `./run_virt_rfe_assessment.sh CNV-81784` |
+| **Auto-detect project** | `./run_virt_rfe_assessment.sh MTV-5653` |
+| **Explicit project** | `./run_virt_rfe_assessment.sh --project cnv --new` |
+| **Interactive pick** | `./run_virt_rfe_assessment.sh --new` (prompts CNV or MTV) |
+| **Draft / display** | `./run_virt_rfe_assessment.sh MTV-5653` (default — no Jira writes) |
+| **Markdown file** | `./run_virt_rfe_assessment.sh MTV-5653 --output draft.md` |
+| **Comment preview** | `./run_virt_rfe_assessment.sh MTV-5653 --comment` |
+| **Comment execute** | `./run_virt_rfe_assessment.sh MTV-5653 --comment --execute` |
+| **JSON** | `./run_virt_rfe_assessment.sh CNV-81784 --json` |
+| **State check** | `./run_virt_rfe_assessment.sh MTV-5653 --check-state refinement` |
 
 ## Prerequisites
 
@@ -36,7 +41,7 @@ source load_jira_env.sh
 ## Workflow
 
 1. Determine project: from issue key, `--project cnv|mtv`, or prompt user.
-2. Run `assess_virt_rfe.py` in **draft** mode first unless the user explicitly asks to comment.
+2. Run `./run_virt_rfe_assessment.sh` in **draft** mode first unless the user explicitly asks to comment.
 3. Report the **computed score table** from the script (do not leave scores blank).
 4. For batch intake, use `--project {cnv|mtv} --new`.
 5. Before `--comment --execute`, show preview unless the user already approved posting.
