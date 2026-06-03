@@ -1,0 +1,86 @@
+---
+description: MTV to VIRTSTRAT to CIPOE link copy and confirmation
+alwaysApply: true
+---
+
+# MTV → VIRTSTRAT → CIPOE Link Copy
+
+MTV work links to **VIRTSTRAT Features** (not CNV). Customer evidence (CIPOE) on the VirtStrat feature should be reflected on linked MTV issues.
+
+## Confirmation / Preview (dry-run)
+
+When the user asks to **confirm cipoe links** for MTV, or preview MTV CIPOE copy:
+
+```bash
+cd /path/to/JIRA_MCP_TOOLS
+source jira_mcp_env/bin/activate
+python3 copy_cipoe_links_to_mtv.py --dry-run
+```
+
+Or: `./run_copy_cipoe_links_to_mtv.sh`
+
+## Execute Workflow (IMPORTANT)
+
+1. **Dry-run first** unless the user explicitly asks to execute without preview.
+2. **Before `--execute`**, ask which account to use:
+   - **Personal account** (your `@redhat.com` login) — links and comments appear under the user's name
+   - **VME Automation Bot** (`vme-automation-bot@redhat.com`, `--bot`) — preferred when the user does not want their name on automation comments
+3. Do **not** run `--execute` as the personal account until the user chooses (or explicitly says personal / no bot).
+
+## Copy Links Script
+
+To **copy CIPOE links from VIRTSTRAT to MTV** (avoiding duplicates):
+
+```bash
+cd /path/to/JIRA_MCP_TOOLS
+source jira_mcp_env/bin/activate
+python3 copy_cipoe_links_to_mtv.py --dry-run              # Preview as personal account
+python3 copy_cipoe_links_to_mtv.py --execute              # Execute as personal account
+python3 copy_cipoe_links_to_mtv.py --execute --bot        # Execute as VME Automation Bot
+python3 copy_cipoe_links_to_mtv.py --exclude CIPOE-30227  # Exclude specific CIPOE
+```
+
+### Logging
+
+All runs are logged to: `cipoe_link_copy_mtv.log`
+
+### Link chain
+
+1. MTV issue is linked to a VIRTSTRAT Feature (issuelink)
+2. VIRTSTRAT Feature has CIPOE Account links
+3. Script copies missing CIPOE links onto the MTV issue
+
+### Link Direction (IMPORTANT)
+
+Links are created with **Account** link type:
+- **MTV** shows "impacts account" → CIPOE
+- **CIPOE** shows "account is impacted by" ← MTV
+
+```python
+jira.create_issue_link(
+    type="Account",
+    inwardIssue=mtv_key,
+    outwardIssue=cipoe_key
+)
+```
+
+### Comments
+
+Comments use **Red Hat Employee** visibility only.
+
+Standard: `CIPOE links copied from linked VIRTSTRAT features by Claude automation. N link(s) added.`
+
+Link-limited CIPOE (e.g. `CIPOE-30227` / IBM): adds review notice that not all CIPOE links could be included.
+
+### VME Automation Bot
+
+Use `--bot` when changes should run as the automation bot (`.env_vme_automation_bot`).
+
+## Trigger phrases
+
+- "confirm cipoe links mtv"
+- "mtv virtstrat cipoe"
+- "copy cipoe links to mtv"
+- "mtv cipoe preview" / "preview mtv cipoe"
+- "execute mtv cipoe"
+- "run as vme bot" (use --bot flag)

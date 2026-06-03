@@ -1,0 +1,45 @@
+---
+description: Guidelines for cloning HPIA epics without duplicating children
+alwaysApply: true
+---
+
+# Cloning HPIA Epics
+
+When cloning an epic in HPIA (without duplicating child stories):
+
+## Process
+
+1. **Get source epic details** via `getJiraIssue`
+2. **Create new epic** via `createJiraIssue` with updated summary/fields
+3. **Create clone link** via `createIssueLink`
+4. **Add attribution comment**
+
+## createIssueLink Parameters
+
+Use these exact parameter names:
+
+```json
+{
+  "cloudId": "...",
+  "inwardIssue": "HPIA-XXXX",   // Original issue being cloned
+  "outwardIssue": "HPIA-YYYY",  // New cloned issue
+  "type": "Cloners"             // Link type NAME, not ID
+}
+```
+
+❌ **Wrong**: `linkTypeId`, `inwardIssueKey`, `outwardIssueKey`
+✅ **Correct**: `type`, `inwardIssue`, `outwardIssue`
+
+## Fix Version IDs
+
+- Q1 2026: `98795`
+- Q2 2026: `98788`
+
+## Common Fields to Copy
+
+- `parent` (in additional_fields)
+- `fixVersions`
+- `priority`
+- `assignee_account_id`
+- `customfield_10464` (Theme)
+- `customfield_10011` (Epic Name)

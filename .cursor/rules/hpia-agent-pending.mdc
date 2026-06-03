@@ -1,0 +1,35 @@
+---
+description: Check and approve HPIA Parent Status Agent pending updates
+alwaysApply: true
+---
+
+# HPIA Agent Pending Updates
+
+When the user asks to "check HPIA agent", "pending HPIA updates", "run HPIA agent", or similar:
+
+## Check for Pending Updates
+
+1. Read `hpia_agent_pending.json` in the repo root
+2. If status is `pending_approval`:
+   - Show the user the pending changes in a table
+   - Ask if they want to approve and run the live agent
+3. If status is `no_updates`:
+   - Inform the user there are no pending updates
+4. If file doesn't exist:
+   - Offer to run a preview to check for updates
+
+## Running the Agent
+
+Preview mode (check what would change):
+```bash
+cd /path/to/JIRA_MCP_TOOLS && source jira_mcp_env/bin/activate && python hpia_parent_status_agent.py --preview
+```
+
+Live mode (make changes, requires user approval):
+```bash
+cd /path/to/JIRA_MCP_TOOLS && source jira_mcp_env/bin/activate && python hpia_parent_status_agent.py
+```
+
+## What the Agent Does
+
+Transitions HPIA parent issues (Epics/Initiatives) from "New" to "In Progress" when any child is "In Progress" or "Closed". Only affects issues assigned to the current user.

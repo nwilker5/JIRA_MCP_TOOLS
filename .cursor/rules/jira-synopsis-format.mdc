@@ -1,0 +1,24 @@
+---
+description: Format guidelines for Jira issue synopses
+alwaysApply: true
+---
+
+# Jira Synopsis Formatting
+
+When creating a synopsis for a Jira issue (epic, story, etc.):
+
+## Purpose
+
+A synopsis request is intended as a **final closing comment** for the issue. After presenting the synopsis, offer to add it as a comment and close the item.
+
+## Style Requirements
+
+**IMPORTANT**: Never use the user's name (e.g., "Nicole") when describing accomplishments. Use passive voice or general terms like "work focused on", "progress was made", "the team", etc.
+
+1. **Paragraph form**: Write as flowing prose, not bullet points or numbered lists
+2. **No personal names**: Do not mention the user by name when describing work completed - this is critical
+3. **No child issue references**: Do not explicitly list or number child issues (e.g., "HPIA-1234") - instead, describe the work accomplished in aggregate
+4. **Readable narrative**: Synthesize the work into a cohesive summary rather than enumerating each item separately
+5. **No priority mentions**: Do not describe the priority level (e.g., "high-priority", "must have", "critical")
+6. **Include quarter context in title**: Include the quarter (e.g., "Q1 2026") in the synopsis title/header, not in the body text
+7. **No issue key or summary in title**: Do not include the issue key (e.g., "HPIA-1305") or summary in the title - just use "Synopsis (Q1 2026)" since the issue details are already visible on the ticket

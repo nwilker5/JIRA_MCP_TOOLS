@@ -29,7 +29,7 @@ Launcher: `./run_virt_rfe_assessment.sh CNV-81784` or `./run_virt_rfe_assessment
 ## Prerequisites
 
 ```bash
-source /Users/nwilker/GIT/JIRA_MCP_TOOLS/.env_wilker_jira
+source load_jira_env.sh
 # JIRA_URL, JIRA_USERNAME, JIRA_API_TOKEN
 ```
 

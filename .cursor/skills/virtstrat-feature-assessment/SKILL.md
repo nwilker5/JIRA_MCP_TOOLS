@@ -24,7 +24,7 @@ Assess strategy **Feature** issues in VIRTSTRAT/HPSTRAT against the [OpenShift V
 ## Prerequisites
 
 ```bash
-source /Users/nwilker/GIT/JIRA_MCP_TOOLS/.env_wilker_jira
+source load_jira_env.sh
 # JIRA_URL, JIRA_USERNAME, JIRA_API_TOKEN
 ```
 
@@ -277,7 +277,7 @@ States: `refinement`, `backlog`, `in progress`, `release pending`, `closed`
 ## Fetching via REST
 
 ```bash
-source /Users/nwilker/GIT/JIRA_MCP_TOOLS/.env_wilker_jira
+source load_jira_env.sh
 curl -s -u "${JIRA_USERNAME}:${JIRA_API_TOKEN}" \
   "${JIRA_URL}/rest/api/3/issue/VIRTSTRAT-600?fields=summary,description,assignee,customfield_10467,customfield_10019,customfield_10795,status,issuelinks,fixVersions,components,priority"
 ```

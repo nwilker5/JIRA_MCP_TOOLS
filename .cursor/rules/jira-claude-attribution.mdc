@@ -1,0 +1,27 @@
+---
+description: Add Claude attribution when creating or updating Jira issues
+alwaysApply: true
+---
+
+# Jira Claude Attribution
+
+When creating or updating Jira issues via the MCP Atlassian tools, always add a comment indicating the action was performed via Claude AI assistant.
+
+## Creating Issues
+
+After creating a new Jira issue, add a comment:
+> "This issue was created via Claude AI assistant."
+
+## Updating Issues
+
+When making significant updates to an existing issue (editing fields, transitioning status, etc.), add a comment:
+> "This issue was updated via Claude AI assistant."
+
+## Adding Comments
+
+When the only action is adding a comment, append a note to the end of the comment:
+> "\n\n---\n*Comment added via Claude AI assistant.*"
+
+## Exceptions
+
+- Do not add duplicate attribution if one was already added in the same session for that issue

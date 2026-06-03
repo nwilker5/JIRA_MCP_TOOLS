@@ -1,0 +1,57 @@
+# Scope Creep Report Agent
+
+When the user asks for "scope creep", "scope changes", "what was added/removed from release X", or similar:
+
+## Running the Report
+
+```bash
+cd /path/to/JIRA_MCP_TOOLS
+python3 scope_creep_report.py --release <VERSION> --days <DAYS>
+```
+
+Or use the launcher:
+```bash
+./run_scope_creep.sh <VERSION> [DAYS] [EXPORT_FORMAT]
+```
+
+## Examples
+
+```bash
+# 7-day scope creep for CNV/VIRTSTRAT 5.0
+python3 scope_creep_report.py --release 5.0
+
+# 14-day scope creep for 4.23
+python3 scope_creep_report.py --release 4.23 --days 14
+
+# Export to CSV
+python3 scope_creep_report.py --release 5.0 --export csv
+
+# Export to JSON
+python3 scope_creep_report.py --release 5.0 --export json
+```
+
+## What It Analyzes
+
+1. **CNV Epics** - queries project CNV for epics
+2. **VIRTSTRAT Features** - queries project VIRTSTRAT for features
+3. **Changelog analysis** - finds when fixVersion was ADDED or REMOVED
+4. **GA/TP Classification** - highlights items based on:
+   - Summary containing [GA], [TP], TechPreview, DevPreview, etc.
+   - Labels containing ga, tp, techpreview
+
+## Output
+
+- Items ADDED to the release scope
+- Items REMOVED from the release scope (de-scoped)
+- Breakdown by GA/TP/Other
+- Breakdown by project (CNV vs VIRTSTRAT)
+- Net scope change
+
+## Trigger Phrases
+
+- "scope creep for 5.0"
+- "what changed in 4.23 scope"
+- "scope changes last week"
+- "run scope creep report"
+- "Monday report for Tuesday meeting"
+- "what was added/removed from release"
