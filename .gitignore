@@ -1,1 +1,10 @@
 setup_jira_env.sh
+
+# Personal Jira API credentials (virtshortlist and other scripts)
+.env_jira
+.env_wilker_jira
+.env_vme_automation_bot
+
+# Google API credentials (sensitive - never commit)
+google_credentials.json
+google_token.json
