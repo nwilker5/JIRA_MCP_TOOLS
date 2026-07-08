@@ -9,13 +9,29 @@ on:
 jobs:
   sync:
     runs-on: ubuntu-latest
-    env:
-      JIRA_URL: ${{ secrets.VME_BOT_JIRA_URL }}
-      JIRA_USERNAME: ${{ secrets.VME_BOT_JIRA_USERNAME }}
-      JIRA_API_TOKEN: ${{ secrets.VME_BOT_JIRA_API_TOKEN }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Validate secrets
+        env:
+          JIRA_URL: ${{ secrets.VME_BOT_JIRA_URL }}
+          JIRA_USERNAME: ${{ secrets.VME_BOT_JIRA_USERNAME }}
+          JIRA_API_TOKEN: ${{ secrets.VME_BOT_JIRA_API_TOKEN }}
+        run: |
+          missing=()
+          [[ -z "$JIRA_URL" ]] && missing+=("VME_BOT_JIRA_URL")
+          [[ -z "$JIRA_USERNAME" ]] && missing+=("VME_BOT_JIRA_USERNAME")
+          [[ -z "$JIRA_API_TOKEN" ]] && missing+=("VME_BOT_JIRA_API_TOKEN")
+          if [[ ${#missing[@]} -gt 0 ]]; then
+            echo "::error::Missing repository secrets: ${missing[*]}"
+            echo "Add them at: Settings → Secrets and variables → Actions"
+            echo "  VME_BOT_JIRA_URL = https://redhat.atlassian.net"
+            echo "  VME_BOT_JIRA_USERNAME = vme-automation-bot@redhat.com"
+            echo "  VME_BOT_JIRA_API_TOKEN = <bot API token>"
+            exit 1
+          fi
+          echo "Secrets present (values not shown)."
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -26,6 +42,10 @@ jobs:
         run: pip install requests
 
       - name: Sync VBWindows health status (execute)
+        env:
+          JIRA_URL: ${{ secrets.VME_BOT_JIRA_URL }}
+          JIRA_USERNAME: ${{ secrets.VME_BOT_JIRA_USERNAME }}
+          JIRA_API_TOKEN: ${{ secrets.VME_BOT_JIRA_API_TOKEN }}
         run: |
           python3 .cursor/skills/vbwindows-health-labels/scripts/vbwindows_health_labels.py --execute
 
