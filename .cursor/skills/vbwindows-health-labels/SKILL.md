@@ -101,6 +101,10 @@ Cron is UTC (`0 * * * 1-5`). Adjust in the workflow file for a different timezon
 
 - Most recent comment with `RED:`, `YELLOW:`, or `GREEN:` at line start (case-insensitive).
 - Older color comments are ignored.
+- **Skip updates** when values already match the latest comment:
+  - **Color Status** — not reset if already Red / Yellow / Green for that comment
+  - **Status Summary** — not reset if same date and body already matches (including Jira truncation)
+  - **health-* label** (next tier) — not reset if already correct
 
 ## Trigger phrases
 

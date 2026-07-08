@@ -123,7 +123,20 @@ def parse_jira_dt(value: str) -> datetime:
 
 
 def normalize_summary_text(text: str) -> str:
+    text = text.replace("\u2019", "'").replace("\u2018", "'")
     return re.sub(r"\s+", " ", text).strip()
+
+
+def _extract_summary_date(text: str) -> str | None:
+    match = re.search(r"(\d{4}-\d{2}-\d{2}):", text)
+    return match.group(1) if match else None
+
+
+def _extract_summary_body(text: str) -> str:
+    lines = text.strip().split("\n", 1)
+    if len(lines) > 1 and re.match(r"\d{4}-\d{2}-\d{2}:", lines[0].strip()):
+        return normalize_summary_text(lines[1])
+    return normalize_summary_text(text)
 
 
 def latest_status_comment(comments: list[dict]) -> dict | None:
@@ -284,8 +297,48 @@ def _current_status_summary(fields: dict) -> str:
     return adf_to_text(value).strip()
 
 
-def _summary_matches(current: str, target_plain: str) -> bool:
-    return normalize_summary_text(current) == normalize_summary_text(target_plain)
+def _summary_matches(
+    current: str,
+    target_plain: str,
+    latest_date: str,
+    color_already_set: bool = False,
+) -> bool:
+    if not current.strip():
+        return False
+
+    current_norm = normalize_summary_text(current)
+    target_norm = normalize_summary_text(target_plain)
+    if current_norm == target_norm:
+        return True
+
+    current_date = _extract_summary_date(current)
+    if current_date != latest_date:
+        return False
+
+    current_body = _extract_summary_body(current)
+    target_body = _extract_summary_body(target_plain)
+    if not current_body or not target_body:
+        return color_already_set
+
+    if current_body == target_body:
+        return True
+
+    # Jira may truncate Status Summary — treat same-date prefix overlap as a match.
+    shorter, longer = (
+        (current_body, target_body)
+        if len(current_body) <= len(target_body)
+        else (target_body, current_body)
+    )
+    if len(shorter) >= 40 and longer.startswith(shorter):
+        return True
+
+    # Color already reflects the latest comment — avoid rewriting minor text drift.
+    if color_already_set:
+        overlap = min(len(current_body), len(target_body), 80)
+        if overlap >= 40 and current_body[:overlap] == target_body[:overlap]:
+            return True
+
+    return False
 
 
 def _label_matches(labels: list[str], expected: str) -> bool:
@@ -318,7 +371,10 @@ def evaluate_issue(
     if tier == "perfect":
         color_ok = (current_color_status or "").lower() == target_color_status.lower()
         summary_ok = not has_summary_field or _summary_matches(
-            current_status_summary, target_summary_plain
+            current_status_summary,
+            target_summary_plain,
+            latest["date"],
+            color_already_set=color_ok,
         )
 
         if has_color_field and not color_ok:
@@ -335,7 +391,10 @@ def evaluate_issue(
             label.lower() != expected_label for label in current_health
         )
         summary_ok = not has_summary_field or _summary_matches(
-            current_status_summary, target_summary_plain
+            current_status_summary,
+            target_summary_plain,
+            latest["date"],
+            color_already_set=label_ok,
         )
 
         if not label_ok:
