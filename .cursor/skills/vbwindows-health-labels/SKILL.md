@@ -69,6 +69,22 @@ pip install requests
 ./run_vbwindows_health_labels.sh --execute
 ```
 
+## GitHub Actions (hourly, Monday–Friday)
+
+Workflow: `.github/workflows/vbwindows-health-labels.yml`
+
+Runs every hour on weekdays (UTC) as the VME bot. Also supports manual **Run workflow**.
+
+**Repository secrets** (Settings → Secrets and variables → Actions):
+
+| Secret | Value |
+|--------|--------|
+| `VME_BOT_JIRA_URL` | `https://redhat.atlassian.net` |
+| `VME_BOT_JIRA_USERNAME` | `vme-automation-bot@redhat.com` |
+| `VME_BOT_JIRA_API_TOKEN` | Bot API token |
+
+Cron is UTC (`0 * * * 1-5`). Adjust in the workflow file for a different timezone or hour window.
+
 ## Agent workflow
 
 1. **Always use VME Automation Bot** — `./run_vbwindows_health_labels.sh` (no `--personal` unless user explicitly asks).
