@@ -1,0 +1,37 @@
+---
+description: Do not add nwilker as a watcher on batch Jira updates; prefer VME bot or confirm first
+alwaysApply: true
+---
+
+# Jira batch updates — no personal watcher
+
+When updating Jira issues in a **batch process** (scripts, automation, multi-issue `--execute` runs):
+
+## Default: do not watch issues under nwilker's account
+
+Jira **auto-adds the acting user as a watcher** when they edit an issue or add a comment. A batch of hundreds of updates will flood `nwilker@redhat.com` with watches and notifications.
+
+## Before `--execute` on any batch Jira script
+
+1. **Prefer the VME Automation Bot** (`--bot`, `.env_vme_automation_bot`) so changes and watches are attributed to `vme-automation-bot@redhat.com`, not the personal account.
+2. If the run must use **personal credentials** (`.env_wilker_jira`):
+   - **Ask and get explicit confirmation** before executing.
+   - Tell the user that Jira will auto-add them as a watcher on every touched issue unless mitigated.
+   - After the run, **offer to remove nwilker as watcher** from all updated issue keys (see `cnv_unwatch_personal_run.log` / DELETE `/rest/api/3/issue/{key}/watchers?accountId=...`).
+
+## Dry-run first
+
+Always run dry-run (default) and show counts before `--execute`, unless the user explicitly skips preview.
+
+## Scripts in this repo
+
+| Script | Bot flag |
+|--------|----------|
+| `copy_components_from_parent_cnv.py` | `--execute --bot` |
+| `copy_cipoe_links_to_virtstrat.py` | `--execute --bot` |
+| `vbwindows_health_labels.py` / `run_vbwindows_health_labels.sh` | bot by default; `--personal` to override |
+
+## Do not
+
+- Run large batch `--execute` under personal credentials without confirmation.
+- Assume dry-run or MCP updates avoid watcher side effects — they do not.
