@@ -210,16 +210,17 @@ def get_editable_fields(
     issue_key: str,
     cache: dict[str, set[str]],
 ) -> set[str]:
-    project = issue_key.split("-", 1)[0]
-    if project not in cache:
+    if issue_key not in cache:
         response = session.get(
             f"{base_url}/rest/api/3/issue/{issue_key}/editmeta",
             auth=auth,
             timeout=60,
         )
-        response.raise_for_status()
-        cache[project] = set(response.json().get("fields", {}).keys())
-    return cache[project]
+        if response.status_code == 200:
+            cache[issue_key] = set(response.json().get("fields", {}).keys())
+        else:
+            cache[issue_key] = set()
+    return cache[issue_key]
 
 
 def search_issues(
@@ -359,11 +360,36 @@ def evaluate_issue(
 
     has_color_field = COLOR_STATUS_FIELD in editable
     has_summary_field = STATUS_SUMMARY_FIELD in editable
+    has_labels_field = "labels" in editable
     tier = "perfect" if has_color_field else "next"
 
     current_color_status = _current_color_status(fields)
     current_status_summary = _current_status_summary(fields)
     current_health = health_labels_on_issue(labels)
+
+    if not has_color_field and not has_summary_field and not has_labels_field:
+        return {
+            "tier": tier,
+            "compliance": "skip_not_editable",
+            "action": "skip_not_editable",
+            "skip_reason": "VME bot cannot edit labels, Color Status, or Status Summary on this issue screen",
+            "changes": [],
+            "update_fields": {},
+            "latest_color": color,
+            "latest_color_date": latest["date"],
+            "latest_color_author": latest["author"],
+            "status_summary_text": latest["summary_text"],
+            "expected_label": expected_label,
+            "target_color_status": target_color_status,
+            "target_status_summary": target_summary_plain,
+            "current_health_labels": current_health,
+            "current_color_status": current_color_status,
+            "current_status_summary": current_status_summary,
+            "has_color_status_field": has_color_field,
+            "has_status_summary_field": has_summary_field,
+            "has_labels_field": has_labels_field,
+            "new_labels": labels,
+        }
 
     changes: list[str] = []
     update_fields: dict = {}
@@ -397,7 +423,7 @@ def evaluate_issue(
             color_already_set=label_ok,
         )
 
-        if not label_ok:
+        if has_labels_field and not label_ok:
             changes.append(f"label -> {expected_label}")
             update_fields["labels"] = build_target_labels(labels, expected_label)
 
@@ -425,6 +451,7 @@ def evaluate_issue(
         "current_status_summary": current_status_summary,
         "has_color_status_field": has_color_field,
         "has_status_summary_field": has_summary_field,
+        "has_labels_field": has_labels_field,
         "new_labels": update_fields.get("labels", labels),
     }
 
@@ -499,6 +526,7 @@ def build_plan(
         "next_ok": sum(1 for row in next_rows if row["compliance"] == "ok"),
         "would_update": would_update,
         "skip_no_color_comment": sum(1 for row in rows if row["action"] == "skip_no_color_comment"),
+        "skip_not_editable": sum(1 for row in rows if row["action"] == "skip_not_editable"),
         "rows": rows,
     }
 
@@ -508,28 +536,37 @@ def execute_updates(
     base_url: str,
     auth: HTTPBasicAuth,
     updates: list[dict],
-) -> list[str]:
+) -> tuple[list[str], list[str]]:
     log_lines: list[str] = []
+    errors: list[str] = []
     for row in updates:
         key = row["key"]
-        response = session.put(
-            f"{base_url}/rest/api/3/issue/{key}",
-            auth=auth,
-            json={"fields": row["update_fields"]},
-            timeout=60,
-        )
-        response.raise_for_status()
-        comment = session.post(
-            f"{base_url}/rest/api/3/issue/{key}/comment",
-            auth=auth,
-            json={"body": attribution_comment_body(row["tier"], row["changes"])},
-            timeout=60,
-        )
-        comment.raise_for_status()
-        line = f"{key} ({row['tier']}): {', '.join(row['changes'])}"
-        print(line)
-        log_lines.append(line)
-    return log_lines
+        try:
+            response = session.put(
+                f"{base_url}/rest/api/3/issue/{key}",
+                auth=auth,
+                json={"fields": row["update_fields"]},
+                timeout=60,
+            )
+            response.raise_for_status()
+            comment = session.post(
+                f"{base_url}/rest/api/3/issue/{key}/comment",
+                auth=auth,
+                json={"body": attribution_comment_body(row["tier"], row["changes"])},
+                timeout=60,
+            )
+            comment.raise_for_status()
+            line = f"{key} ({row['tier']}): {', '.join(row['changes'])}"
+            print(line)
+            log_lines.append(line)
+        except requests.HTTPError as exc:
+            detail = ""
+            if exc.response is not None:
+                detail = exc.response.text[:300]
+            msg = f"{key}: skipped ({exc}); {detail}"
+            print(msg, file=sys.stderr)
+            errors.append(msg)
+    return log_lines, errors
 
 
 def render_markdown(plan: dict, draft: bool) -> str:
@@ -544,6 +581,7 @@ def render_markdown(plan: dict, draft: bool) -> str:
         f"- **Next tier** (health label + Status Summary): {plan['next_ok']}/{plan['next_total']} ok",
         f"- Would update: {len(plan['would_update'])}",
         f"- No color comment: {plan['skip_no_color_comment']}",
+        f"- Not editable by bot: {plan.get('skip_not_editable', 0)}",
         "",
         "**Perfect** = `VBWindows` + Color Status + Status Summary match latest color comment.",
         "**Next** = `VBWindows` + `health-*` label + Status Summary (when Color Status is not on screen).",
@@ -608,6 +646,14 @@ def render_markdown(plan: dict, draft: bool) -> str:
         lines.extend([f"## No color comment ({len(no_color)})", ""])
         for row in no_color:
             lines.append(f"- [{row['key']}]({row['url']}) — {row['summary']}")
+        lines.append("")
+
+    not_editable = [row for row in plan["rows"] if row["action"] == "skip_not_editable"]
+    if not_editable:
+        lines.extend([f"## Not editable by bot ({len(not_editable)})", ""])
+        for row in not_editable:
+            reason = row.get("skip_reason", "fields not on edit screen")
+            lines.append(f"- [{row['key']}]({row['url']}) — {reason}")
         lines.append("")
 
     if draft and plan["would_update"]:
@@ -703,12 +749,19 @@ def main() -> None:
         f"Scope label: {args.scope_label}",
         f"Would update: {len(updates)}",
     ]
-    log_lines.extend(execute_updates(session, base_url, auth, updates))
+    applied, errors = execute_updates(session, base_url, auth, updates)
+    log_lines.extend(applied)
+    log_lines.extend(errors)
     LOG_FILE.write_text(
         (LOG_FILE.read_text() + "\n".join(log_lines) + "\n")
         if LOG_FILE.exists()
         else "\n".join(log_lines) + "\n"
     )
+    if errors and not applied:
+        print("\nAll updates failed.", file=sys.stderr)
+        sys.exit(1)
+    if errors:
+        print(f"\nCompleted with {len(errors)} skipped issue(s).", file=sys.stderr)
 
 
 if __name__ == "__main__":
