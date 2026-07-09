@@ -8,3 +8,7 @@ setup_jira_env.sh
 # Google API credentials (sensitive - never commit)
 google_credentials.json
 google_token.json
+
+# Local-only VBWindows health sync (run manually; not published to GitHub)
+.cursor/skills/vbwindows-health-labels/
+run_vbwindows_health_labels.sh

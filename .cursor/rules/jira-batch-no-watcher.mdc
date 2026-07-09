@@ -29,7 +29,6 @@ Always run dry-run (default) and show counts before `--execute`, unless the user
 |--------|----------|
 | `copy_components_from_parent_cnv.py` | `--execute --bot` |
 | `copy_cipoe_links_to_virtstrat.py` | `--execute --bot` |
-| `vbwindows_health_labels.py` / `run_vbwindows_health_labels.sh` | bot by default; `--personal` to override |
 
 ## Do not
 
