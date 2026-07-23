@@ -5,6 +5,9 @@ setup_jira_env.sh
 .env_wilker_jira
 .env_vme_automation_bot
 
+# Local biweekly brief working files (generated each run)
+virtshortlist_briefs_*.json
+
 # Google API credentials (sensitive - never commit)
 google_credentials.json
 google_token.json

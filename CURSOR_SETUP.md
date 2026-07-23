@@ -171,6 +171,7 @@ Once MCP is connected and `.env_jira` is set up, try prompts like:
 |-------------|--------------|
 | *"Run CNV epic hygiene"* | Finds open CNV epics missing components or VIRTSTRAT Feature parent |
 | *"Run the virtshortlist report"* | Reports VIRTSTRAT/HPSTRAT shortlist items and stale updates |
+| *"VirtShortList biweekly exec brief"* | Draft executive summaries, review, then post Status Summary + comment as VME bot |
 | *"Preview CIPOE links for virtstrat"* | Dry-run copy of CIPOE links from CNV to VIRTSTRAT |
 | *"Assess VIRTSTRAT-600 feature quality"* | Scores a feature against the VirtStrat playbook |
 | *"Assess MTV-5653 RFE quality"* | Virt RFE quality check (CNV or MTV) via `./run_virt_rfe_assessment.sh` |
