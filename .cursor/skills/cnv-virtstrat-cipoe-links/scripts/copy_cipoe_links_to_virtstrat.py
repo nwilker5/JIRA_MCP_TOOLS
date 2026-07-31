@@ -11,7 +11,7 @@ This script:
 
 Usage:
     python copy_cipoe_links_to_virtstrat.py --dry-run              # Preview changes
-    python copy_cipoe_links_to_virtstrat.py --execute              # Execute as nwilker
+    python copy_cipoe_links_to_virtstrat.py --execute              # Execute as personal (.env_jira)
     python copy_cipoe_links_to_virtstrat.py --execute --bot        # Execute as VME bot
     python copy_cipoe_links_to_virtstrat.py --exclude CIPOE-30227  # Exclude specific CIPOE
 
@@ -123,14 +123,13 @@ def get_jira_connection(use_bot=False):
             or env.get('JIRA_EMAIL')
             or os.environ.get('JIRA_USERNAME')
             or os.environ.get('JIRA_EMAIL')
-            or 'nwilker@redhat.com'
         )
         token = env.get('JIRA_API_TOKEN') or os.environ.get('JIRA_API_TOKEN', '')
         jira_url = env.get('JIRA_URL') or os.environ.get('JIRA_URL') or jira_url
-        if not token:
+        if not email or not token:
             raise ValueError(
-                "Jira token not found. Create .env_jira in the repo root "
-                "(see env.jira.example) or set JIRA_API_TOKEN"
+                "Jira credentials not found. Create .env_jira in the repo root "
+                "with JIRA_USERNAME and JIRA_API_TOKEN (see env.jira.example)"
             )
 
     jira = JIRA(server=jira_url, basic_auth=(email, token))

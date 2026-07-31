@@ -36,7 +36,7 @@ source jira_mcp_env/bin/activate
 pip install jira
 ```
 
-Never commit `.env_jira` or `.env_vme_automation_bot`.
+**Credentials are never stored in the skill.** Only placeholder examples are committed. Each person copies an example to their own local env file (gitignored). Never commit `.env_jira` or `.env_vme_automation_bot`.
 
 ## Run
 
