@@ -5,7 +5,7 @@ alwaysApply: true
 
 # VIRTSTRAT → CNV/MTV → CIPOE Analysis & Link Copy
 
-**Primary skill:** `.cursor/skills/cnv-virtstrat-cipoe-links/SKILL.md` — prefer that workflow for copy/draft/execute (CNV and MTV).
+**Primary skill:** `.cursor/skills/virtstrat-cipoe-links/SKILL.md` — prefer that workflow for copy/draft/execute (CNV and MTV).
 
 ## Analysis Script
 
@@ -38,7 +38,7 @@ Or: `./run_virtstrat_cnv_cipoe_analysis.sh`
 ./run_copy_cipoe_links_to_virtstrat.sh --execute          # personal (ask first)
 ```
 
-Script: `.cursor/skills/cnv-virtstrat-cipoe-links/scripts/copy_cipoe_links_to_virtstrat.py`
+Script: `.cursor/skills/virtstrat-cipoe-links/scripts/copy_cipoe_links_to_virtstrat.py`
 
 Log: `cipoe_link_copy.log`
 

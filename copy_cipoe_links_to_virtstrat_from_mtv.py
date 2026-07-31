@@ -12,7 +12,7 @@ SCRIPT = os.path.join(
     os.path.dirname(os.path.abspath(__file__)),
     ".cursor",
     "skills",
-    "cnv-virtstrat-cipoe-links",
+    "virtstrat-cipoe-links",
     "scripts",
     "copy_cipoe_links_to_virtstrat.py",
 )

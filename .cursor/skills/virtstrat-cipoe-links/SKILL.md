@@ -1,5 +1,5 @@
 ---
-name: cnv-virtstrat-cipoe-links
+name: virtstrat-cipoe-links
 description: >-
   Copy missing CIPOE (customer escalation) Account links from linked CNV and/or
   MTV issues onto VIRTSTRAT Features. Dry-run by default; execute as VME
@@ -27,11 +27,11 @@ Finds **VIRTSTRAT Features** linked to **CNV** and/or **MTV** issues that alread
 
 ```bash
 # Personal (dry-run / optional execute)
-cp .cursor/skills/cnv-virtstrat-cipoe-links/env.jira.example .env_jira
+cp .cursor/skills/virtstrat-cipoe-links/env.jira.example .env_jira
 # Edit: JIRA_URL, JIRA_USERNAME, JIRA_API_TOKEN
 
 # VME Automation Bot (preferred for --execute)
-cp .cursor/skills/cnv-virtstrat-cipoe-links/env.bot.example .env_vme_automation_bot
+cp .cursor/skills/virtstrat-cipoe-links/env.bot.example .env_vme_automation_bot
 # Edit: JIRA_API_TOKEN for vme-automation-bot@redhat.com
 
 source jira_mcp_env/bin/activate

@@ -4,4 +4,4 @@
 set -euo pipefail
 cd "$(dirname "$0")"
 source jira_mcp_env/bin/activate
-python3 .cursor/skills/cnv-virtstrat-cipoe-links/scripts/copy_cipoe_links_to_virtstrat.py "$@"
+python3 .cursor/skills/virtstrat-cipoe-links/scripts/copy_cipoe_links_to_virtstrat.py "$@"
