@@ -1,11 +1,11 @@
 ---
-description: VIRTSTRAT to CNV to CIPOE link analysis and copy
+description: VIRTSTRAT to CNV/MTV to CIPOE link analysis and copy
 alwaysApply: true
 ---
 
-# VIRTSTRAT → CNV → CIPOE Analysis & Link Copy
+# VIRTSTRAT → CNV/MTV → CIPOE Analysis & Link Copy
 
-**Primary skill:** `.cursor/skills/cnv-virtstrat-cipoe-links/SKILL.md` — prefer that workflow for copy/draft/execute.
+**Primary skill:** `.cursor/skills/cnv-virtstrat-cipoe-links/SKILL.md` — prefer that workflow for copy/draft/execute (CNV and MTV).
 
 ## Analysis Script
 
@@ -17,44 +17,34 @@ source jira_mcp_env/bin/activate
 python3 virtstrat_cnv_cipoe_analysis.py
 ```
 
-Or use the launcher: `./run_virtstrat_cnv_cipoe_analysis.sh`
-
-### What the analysis does
-
-1. Queries Jira for all VIRTSTRAT issues linked to CNV features
-2. For each CNV feature, finds CIPOE links (customer escalations)
-3. Also captures any direct CIPOE links from VIRTSTRAT items
-4. Outputs a consolidated markdown table (one row per VIRTSTRAT)
+Or: `./run_virtstrat_cnv_cipoe_analysis.sh`
 
 ## Execute Workflow (IMPORTANT)
 
 1. **Dry-run first** unless the user explicitly asks to execute without preview.
-2. **Before `--execute`**, ask which account to use:
-   - **Personal account** (your `@redhat.com` login) — links and comments appear under the user's name
-   - **VME Automation Bot** (`vme-automation-bot@redhat.com`, `--bot`) — preferred when the user does not want their name on automation comments
-3. Do **not** run `--execute` as the personal account until the user chooses (or explicitly says personal / no bot).
-4. Dry-run may use either account; personal is fine for preview.
+2. Default **`--source both`** (CNV + MTV) unless the user limits to one.
+3. **Before `--execute`**, ask which account:
+   - **Personal account** — links/comments under the user's name
+   - **VME Automation Bot** (`--bot`) — preferred
+4. Do **not** run `--execute` as personal until the user chooses it.
 
 ## Copy Links Script
 
 ```bash
-./run_copy_cipoe_links_to_virtstrat.sh                    # dry-run
+./run_copy_cipoe_links_to_virtstrat.sh                    # dry-run, both sources
+./run_copy_cipoe_links_to_virtstrat.sh --source cnv
+./run_copy_cipoe_links_to_virtstrat.sh --source mtv
 ./run_copy_cipoe_links_to_virtstrat.sh --execute --bot    # VME bot (preferred)
 ./run_copy_cipoe_links_to_virtstrat.sh --execute          # personal (ask first)
-./run_copy_cipoe_links_to_virtstrat.sh --exclude CIPOE-30227
 ```
 
-Script path: `.cursor/skills/cnv-virtstrat-cipoe-links/scripts/copy_cipoe_links_to_virtstrat.py`
+Script: `.cursor/skills/cnv-virtstrat-cipoe-links/scripts/copy_cipoe_links_to_virtstrat.py`
 
-### Logging
+Log: `cipoe_link_copy.log`
 
-All runs (preview and execute) are logged to: `cipoe_link_copy.log`
+After execute, the script removes the executor as a watcher.
 
-### Link Direction (IMPORTANT)
-
-Links are created with **Account** link type:
-- **VIRTSTRAT** shows "impacts account" → CIPOE
-- **CIPOE** shows "account is impacted by" ← VIRTSTRAT
+### Link Direction
 
 ```python
 jira.create_issue_link(
@@ -66,25 +56,17 @@ jira.create_issue_link(
 
 ### Comments
 
-Comments are **Red Hat Employee** visibility only, plus Claude AI assistant attribution.
-Standard: `Missing CIPOE links were added from linked CNV items. N link(s) added.`
-
-After execute, the script removes the executor as a watcher on touched issues.
-
-### Link-Limited CIPOE Items (IBM)
-
-`CIPOE-30227` (and others in `LINK_LIMITED_CIPOE`) may hit Jira's 2000 link limit — review comment is posted instead when needed.
+**Red Hat Employee** visibility + Claude attribution.
+Standard: `Missing CIPOE links were added from linked CNV/MTV items. N link(s) added.`
 
 ### VME Automation Bot
 
-- Credentials: `.env_vme_automation_bot`
+- Credentials: `.env_vme_automation_bot` (each installer’s own; never commit)
 - Flag: `--bot`
 
 ## Trigger phrases
 
-- "cipoe between virtstrat and cnv"
 - "draft cipoe" / "preview cipoe" / "cipoe preview"
-- "copy cipoe links to virtstrat" / "missing cipoe links"
-- "run cipoe process"
-- "run as vme bot" / "as automation bot"
-- "execute cipoe"
+- "copy cipoe links" / "missing cipoe" / "cnv mtv cipoe"
+- "run cipoe process" / "execute cipoe"
+- "run as vme bot"
