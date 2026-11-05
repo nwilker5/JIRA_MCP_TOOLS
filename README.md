@@ -85,3 +85,17 @@ Both tools support flexible range selection:
 - Scripts auto-detect Red Hat JIRA vs standard JIRA authentication
 - All operations require confirmation before deletion
 - Only delete items you own or have permission to delete
+
+## Team Cursor / Agent skills
+
+Project skills live under [`.cursor/skills/`](.cursor/skills/) (Cursor) and are mirrored for some workflows under [`.agents/skills/`](.agents/skills/).
+
+**Customer Intelligence (CNV Feature Request → VIRTSTRAT):**
+
+- Browse (no hidden folders): [`skills/virtstrat-customer-links/`](skills/virtstrat-customer-links/)
+- Cursor path: [`.cursor/skills/virtstrat-customer-links/SKILL.md`](.cursor/skills/virtstrat-customer-links/SKILL.md)
+- Direct GitHub: https://github.com/nwilker5/JIRA_MCP_TOOLS/tree/main/skills/virtstrat-customer-links
+- Ask the agent: “draft customer links from CNV Feature Requests to VirtStrat” or “create customer intelligence links”
+
+This repo is **public** on GitHub. Anyone can view and clone without collaborator access. Clone `main` and open the folder above if a coworker cannot see `.cursor` in the GitHub UI (dotfolders are easy to miss).
+
