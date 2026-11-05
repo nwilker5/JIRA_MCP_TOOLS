@@ -92,10 +92,38 @@ Never commit real tokens.
 | 1 Discover | Dataverse SQL `sql/virtstrat_cnv_customer_gaps.sql` | Warehouse anti-join; no CI token burn |
 | 2 Deduplicate | `copy_customer_links_to_virtstrat.py --from-csv … --write-draft` | One create per `(VIRTSTRAT, mdm_pk)` |
 | 3 Live verify | MCP **`search_links`** `q=VIRTSTRAT-` paged (limit 100) | **Bulk**. Do not call `get_issue_links` once per Feature |
-| 4 Present draft | Table + `virtstrat_customer_links_draft.json` | Ask before create |
-| 5 Create | MCP `create_link` **or** `rh_customers` | SSO-attributed; batches of ≤5 for MCP |
+| 4 Present draft | Table + `virtstrat_customer_links_draft.json` | **One** human gate: ask to create the whole batch |
+| 5 Create | MCP `create_link` (allowlisted) **or** one CLI script | No per-link “approve?”; SSO-attributed |
 | 6 Confirm | Re-run bulk `search_links` for `VIRTSTRAT-` | Drop still-missing into a retry list |
-| 7 Optional Jira | `post_customer_link_jira_note.py` as bot | No customer names in the comment |
+| 7 Optional Jira | `post_customer_link_jira_note.py` as bot | Only if user asks; no customer names |
+
+## One approval for the batch (not two per link)
+
+Cursor can show a **Run** card and an **Approve** card for the same MCP write. This skill treats that as a product friction to avoid, not a required workflow.
+
+**Human gate (once):** show the draft table and ask “Create these N Customer Intelligence links?”  
+**After yes:** run all creates without asking again per row. Do not pair each `create_link` with a separate verify call.
+
+**Make Cursor stop double-prompting CI tools** (repo file, reload if needed):
+
+`.cursor/permissions.json` allowlists `customer-intelligence:create_link`, `search_links`, `get_issue_links`, and related read tools, and steers Auto-review to allow the post-draft create batch.
+
+- Settings → Agents → Approvals & Execution must be **Auto-review** or **Allowlist** (not ask-every-time).
+- If a team admin locks Run Mode, allowlists may not apply; use the CLI path below.
+- Defining `mcpAllowlist` in `permissions.json` **replaces** the in-app MCP allowlist for this workspace. Add other servers you need to `~/.cursor/permissions.json` (arrays merge with the repo file).
+
+**Preferred create paths (pick one):**
+
+1. **MCP batch (default when allowlisted):** after the single yes, call `create_link` in parallel batches of up to 10. No mid-batch asks. No `get_issue_links` per key.
+2. **One CLI script (one terminal approval for the whole batch):**
+
+```bash
+python3 .cursor/skills/virtstrat-customer-links/scripts/emit_create_link_commands.py \
+  --draft virtstrat_customer_links_draft.json \
+  --format rh-customers > /tmp/ci_create_links.sh
+# user already approved the draft; run once:
+bash /tmp/ci_create_links.sh
+```
 
 ### Live verify (bulk, required pattern)
 
@@ -108,7 +136,7 @@ Warehouse can lag MCP (false positives are normal).
 
 ### Create (MCP)
 
-For each remaining draft row:
+Only after the user approved the **whole** draft once. For each remaining draft row:
 
 ```
 create_link(
@@ -118,19 +146,19 @@ create_link(
 )
 ```
 
-Copy attestations from the CNV link when present (`attestations=[...]`).
+Copy attestations from the CNV link when present (`attestations=[...]`).  
+Do **not** ask for a second approval per `create_link`. Do **not** call `mcp_auth` between creates unless a call returns auth required.
 
-### Create (CLI fallback)
-
-From a draft JSON, emit commands:
+### Create (CLI — single approval for all links)
 
 ```bash
 python3 .cursor/skills/virtstrat-customer-links/scripts/emit_create_link_commands.py \
   --draft virtstrat_customer_links_draft.json \
-  --format rh-customers
-# review, then:
-# bash /tmp/ci_create_links.sh   # or run line-by-line after auth login
+  --format rh-customers > /tmp/ci_create_links.sh
+bash /tmp/ci_create_links.sh
 ```
+
+Requires `rh_customers auth login` once per machine.
 
 ## SQL
 
@@ -157,10 +185,10 @@ The CSV script is **draft only**. It never calls `create_link`.
 2. Run the FR-scoped SQL (Dataverse MCP `execute_sql` or user-pasted CSV).
 3. Deduplicate → draft JSON / table.
 4. Bulk `search_links` for `VIRTSTRAT-`; drop already-live pairs.
-5. Show verified create list. **Ask** before create.
-6. Create in parent chat, ≤5 parallel `create_link` calls per batch.
-7. Re-verify with bulk `search_links`. Report created / failed / still missing.
-8. Optional: bot Jira note + `ai-sdlc-assisted` label; unwatch bot and personal account when keep-watcher rules allow.
+5. Show verified create list. **Ask once** to create the whole batch.
+6. On yes: create all links (MCP batches of ≤10, or one `rh_customers` script). No per-link re-ask.
+7. Re-verify once with bulk `search_links`. Report created / failed / still missing.
+8. Optional (only if asked): bot Jira note + `ai-sdlc-assisted`; unwatch when keep-watcher rules allow.
 
 ```bash
 source jira_mcp_env/bin/activate
