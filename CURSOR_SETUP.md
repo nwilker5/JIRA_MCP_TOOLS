@@ -15,7 +15,11 @@ The repo includes **Cursor skills** (`.cursor/skills/`) and **rules** (`.cursor/
 
 ## Repo access
 
-This repo lives at **https://github.com/nwilker5/JIRA_MCP_TOOLS**. Ask the repo owner for **collaborator access** before cloning (it is a personal repo, not a Red Hat org repo).
+This repo lives at **https://github.com/nwilker5/JIRA_MCP_TOOLS** (public). You can view and clone without collaborator access.
+
+- Skills browse path (easiest): https://github.com/nwilker5/JIRA_MCP_TOOLS/tree/main/skills
+- Cursor loads skills from `.cursor/skills/` after you clone the repo and open it in Cursor
+- Optional: ask the owner for collaborator access only if you need to push changes
 
 ---
 
