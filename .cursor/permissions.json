@@ -1,0 +1,17 @@
+{
+  "mcpAllowlist": [
+    "customer-intelligence:create_link",
+    "customer-intelligence:search_links",
+    "customer-intelligence:get_issue_links",
+    "customer-intelligence:mcp_auth",
+    "customer-intelligence:list_attestations",
+    "customer-intelligence:get_customer_links",
+    "customer-intelligence:search_customers"
+  ],
+  "autoRun": {
+    "allow_instructions": [
+      "After the user approves a virtstrat-customer-links draft batch, Customer Intelligence create_link, search_links, and get_issue_links calls for that batch should auto-run without a second per-link approval.",
+      "Bulk search_links for q=VIRTSTRAT- or q=CNV- used to draft or verify customer-link gaps should auto-run."
+    ]
+  }
+}
