@@ -59,7 +59,7 @@ def emit_rh_customers(rows: list[dict]) -> None:
         print(f"# {vs} <- {name} ({mdm}) via {row.get('source_key', '')}")
         print(
             "rh_customers create link "
-            f"--issue-key {vs} --customer-mdm-pk {mdm} --context {ctx}"
+            f"--issue-key {vs} --customer-mdm {mdm} --context {ctx}"
         )
 
 
