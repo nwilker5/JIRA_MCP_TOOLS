@@ -24,7 +24,6 @@ Guide: https://redhat.atlassian.net/wiki/spaces/CUSTINTELL/pages/467763266/User+
 
 **Coworker how-to (humans):** [HOWTO.md](./HOWTO.md)
 
-(also under `skills/virtstrat-customer-links/HOWTO.md` on GitHub)
 
 ## Default scope
 
