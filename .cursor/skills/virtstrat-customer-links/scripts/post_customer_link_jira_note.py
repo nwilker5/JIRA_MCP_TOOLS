@@ -26,9 +26,10 @@ DEFAULT_UNWATCH_ACCOUNT_ID = os.environ.get("CUSTOMER_LINKS_UNWATCH_ACCOUNT_ID",
 COMMENT_BODY = (
     "Customer links were updated.\n\n"
     "---\n"
-    "*Comment added via Claude AI assistant.*"
+    "*Comment added with OpenAI assistance.*"
 )
 COMMENT_PREFIX = "Customer links were updated."
+AI_LABEL = "ai-sdlc-assisted"
 
 
 def load_env_file(path: Path) -> dict[str, str]:
@@ -119,6 +120,17 @@ def main() -> None:
                 if author == unwatch_personal_id and COMMENT_PREFIX in body_text:
                     personal.comment(key, c.id).delete()
                     print(f"Deleted personal comment {c.id} on {key}")
+
+        # Ensure ai-sdlc-assisted without removing other labels.
+        issue = bot.issue(key, fields="labels,assignee,reporter,project")
+        labels = list(getattr(issue.fields, "labels", None) or [])
+        if AI_LABEL not in labels:
+            labels.append(AI_LABEL)
+            issue.update(fields={"labels": labels})
+            print(f"Added label {AI_LABEL} on {key}")
+        else:
+            print(f"Label {AI_LABEL} already on {key}")
+
         bot.add_comment(
             key,
             COMMENT_BODY,
@@ -126,8 +138,19 @@ def main() -> None:
         )
         print(f"Bot comment posted on {key}")
         print(f"  Unwatch bot: {unwatch(bot, key, bot_id)}")
-        if personal is not None and unwatch_personal_id:
+
+        # Keep personal watcher on DEVO or when nwilker is assignee/reporter.
+        project_key = getattr(getattr(issue.fields, "project", None), "key", "") or key.split("-", 1)[0]
+        assignee_id = getattr(getattr(issue.fields, "assignee", None), "accountId", None)
+        reporter_id = getattr(getattr(issue.fields, "reporter", None), "accountId", None)
+        keep_personal = (
+            project_key == "DEVO"
+            or (unwatch_personal_id and unwatch_personal_id in {assignee_id, reporter_id})
+        )
+        if personal is not None and unwatch_personal_id and not keep_personal:
             print(f"  Unwatch personal: {unwatch(personal, key, unwatch_personal_id)}")
+        elif keep_personal:
+            print("  Keep personal watcher (DEVO / assignee / reporter)")
 
 
 if __name__ == "__main__":

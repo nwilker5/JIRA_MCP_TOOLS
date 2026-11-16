@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Draft Customer Intelligence links to copy from CNV onto VIRTSTRAT.
+Draft Customer Intelligence links to copy from CNV/MTV FRs onto VIRTSTRAT.
 
 Input is a Dataverse CSV of virtstrat_cnv_customer_gaps.sql — not a
 full-project REST dump. This script never calls create_link.
@@ -30,7 +30,10 @@ DRAFT_OUT = REPO_ROOT / "virtstrat_customer_links_draft.json"
 COL_VS = "virtstrat_issue_key"
 COL_VS_SUM = "virtstrat_summary"
 COL_VS_ST = "virtstrat_status"
-COL_CNV = "cnv_issue_key"
+COL_SRC = "source_issue_key"
+COL_SRC_SUM = "source_summary"
+COL_SRC_PROJ = "source_project"
+COL_CNV = "cnv_issue_key"  # legacy alias for source_issue_key
 COL_CNV_SUM = "cnv_summary"
 COL_NAME = "customer_name"
 COL_MDM = "customer_mdm_pk"
@@ -48,8 +51,23 @@ def load_rows(path: Path) -> list[dict]:
         return [row for row in reader if (row.get(COL_VS) or "").strip()]
 
 
+def source_fields(row: dict) -> tuple[str, str, str]:
+    """Return (source_key, source_summary, source) with legacy CNV column fallback."""
+    key = (row.get(COL_SRC) or row.get(COL_CNV) or "").strip()
+    summary = (row.get(COL_SRC_SUM) or row.get(COL_CNV_SUM) or "").strip()
+    proj = (row.get(COL_SRC_PROJ) or "").strip().lower()
+    if not proj:
+        if key.startswith("MTV-"):
+            proj = "mtv"
+        elif key.startswith("CNV-"):
+            proj = "cnv"
+        else:
+            proj = "cnv"
+    return key, summary, proj
+
+
 def dedupe(rows: list[dict]) -> list[dict]:
-    """One create candidate per (VIRTSTRAT, mdm_pk); keep first CNV source."""
+    """One create candidate per (VIRTSTRAT, mdm_pk); keep first CNV/MTV source."""
     seen: set[tuple[str, str]] = set()
     out: list[dict] = []
     for row in rows:
@@ -61,13 +79,15 @@ def dedupe(rows: list[dict]) -> list[dict]:
         if key in seen:
             continue
         seen.add(key)
+        source_key, source_summary, source = source_fields(row)
         out.append(
             {
                 "virtstrat_key": vs,
                 "virtstrat_summary": (row.get(COL_VS_SUM) or "").strip(),
                 "virtstrat_status": (row.get(COL_VS_ST) or "").strip(),
-                "source_key": (row.get(COL_CNV) or "").strip(),
-                "source_summary": (row.get(COL_CNV_SUM) or "").strip(),
+                "source_key": source_key,
+                "source_summary": source_summary,
+                "source": source,
                 "customer_name": (row.get(COL_NAME) or "").strip(),
                 "customer_mdm_pk": mdm,
                 "context": (row.get(COL_CTX) or "affected_by").strip() or "affected_by",
@@ -89,7 +109,7 @@ def print_table(rows: list[dict]) -> None:
     if not rows:
         return
     print(
-        "\n| VIRTSTRAT | Status | Customer | mdm_pk | context | Via CNV |"
+        "\n| VIRTSTRAT | Status | Customer | mdm_pk | context | Via FR |"
     )
     print("|-----------|--------|----------|--------|---------|---------|")
     for row in rows:
@@ -137,7 +157,9 @@ def main() -> None:
             "source": "dataverse-csv",
             "would_create_count": len(candidates),
             "would_create": candidates,
-            "scope": "CNV Feature Requests → VIRTSTRAT Features (from Dataverse CSV)",
+            "scope": "CNV+MTV Feature Requests → VIRTSTRAT Features (from Dataverse CSV)",
+            "cnv_count": sum(1 for r in candidates if str(r.get("source_key", "")).startswith("CNV-")),
+            "mtv_count": sum(1 for r in candidates if str(r.get("source_key", "")).startswith("MTV-")),
             "note": "Verify with bulk search_links q=VIRTSTRAT- before create_link.",
         }
         DRAFT_OUT.write_text(json.dumps(payload, indent=2) + "\n")
