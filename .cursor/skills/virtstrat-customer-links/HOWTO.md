@@ -192,7 +192,18 @@ python3 .cursor/skills/virtstrat-customer-links/scripts/post_customer_link_jira_
 
 Posts Red Hat Employee-only: `Customer links were updated.` plus AI attribution; ensures `ai-sdlc-assisted`; unwatches bot (and personal watcher when rules allow). **Do not** put customer names in that comment.
 
-Log the batch on the Q4 DEVO hygiene story if your team uses one (example: DEVO-288).
+### 8. Log the batch on DEVO (required after creates)
+
+Default Q4 hygiene story: [DEVO-288](https://redhat.atlassian.net/browse/DEVO-288). Override with `--devo-issue` or `CUSTOMER_LINKS_DEVO_ISSUE`.
+
+```bash
+python3 .cursor/skills/virtstrat-customer-links/scripts/log_batch_to_devo.py \
+  --draft virtstrat_customer_links_draft.json
+# preview only:
+python3 .cursor/skills/virtstrat-customer-links/scripts/log_batch_to_devo.py --dry-run
+```
+
+Posts a Red Hat Employee comment with counts and `VIRTSTRAT <- FR (mdm_pk=…)` lines (no customer names). Keeps the DEVO watcher.
 
 ---
 
@@ -221,7 +232,8 @@ API `/health` may report its own version (for example `0.1.0`). That is **not** 
 4. Show draft; **ask once** to create.
 5. Create all remaining (CLI script or MCP batches).
 6. Re-verify; report created / failed / still missing.
-7. If asked: Jira notes + label; keep watcher on DEVO issues.
+7. If asked: Feature Jira notes + label (bot, Red Hat Employee).
+8. Always: `log_batch_to_devo.py` on DEVO-288 (or configured hygiene story); keep DEVO watcher.
 
 ---
 

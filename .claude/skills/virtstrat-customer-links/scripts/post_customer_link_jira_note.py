@@ -77,7 +77,11 @@ def main() -> None:
     parser.add_argument("--issue", action="append", required=True)
     parser.add_argument("--replace-personal-comment", action="store_true")
     parser.add_argument("--attach-log")
-    parser.add_argument("--devo-issue", default="DEVO-258")
+    parser.add_argument(
+        "--devo-issue",
+        default=os.environ.get("CUSTOMER_LINKS_DEVO_ISSUE", "DEVO-288"),
+        help="DEVO hygiene story for --attach-log (default DEVO-288 / CUSTOMER_LINKS_DEVO_ISSUE)",
+    )
     args = parser.parse_args()
     keys = [k.strip().upper() for k in args.issue]
 
