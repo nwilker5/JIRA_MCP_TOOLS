@@ -22,8 +22,8 @@ missing there.
 
 Guide: https://redhat.atlassian.net/wiki/spaces/CUSTINTELL/pages/467763266/User+Guide+Accessing+Customer+Intelligence+Data+via+Programatic+Tools
 
-**Coworker how-to (humans):** [HOWTO.md](./HOWTO.md)
-
+**Coworker how-to (humans):** [HOWTO.md](./HOWTO.md)  
+(also under `skills/virtstrat-customer-links/HOWTO.md` on GitHub)
 
 ## Default scope
 
@@ -94,14 +94,24 @@ rh_customers create link --help   # flag is --customer-mdm, not --customer-mdm-p
 
 Guide INSTALL: https://gitlab.cee.redhat.com/sage/customer-intelligence/rh-customers/-/blob/main/cli/INSTALL.md
 
-### Optional Jira notes (after creates)
+### Optional Jira notes + required DEVO batch log (after creates)
 
 ```bash
 cp .cursor/skills/virtstrat-customer-links/env.jira.example .env_jira
-# + .env_vme_automation_bot for Red Hat Employee comments
+# + .env_vme_automation_bot for Red Hat Employee Feature comments
 ```
 
 Never commit real tokens.
+
+After every successful create batch, post a **batch log** on the DEVO hygiene story
+(default `DEVO-288` for Q4 2026 Customer Links / CI hygiene):
+
+```bash
+python3 .cursor/skills/virtstrat-customer-links/scripts/log_batch_to_devo.py \
+  --draft virtstrat_customer_links_draft.json
+```
+
+Override story with `--devo-issue` or `CUSTOMER_LINKS_DEVO_ISSUE`. Keep watcher on DEVO.
 
 ## Pipeline
 
@@ -206,17 +216,26 @@ The CSV script is **draft only**. It never calls `create_link`.
 5. Show verified create list. **Ask once** to create the whole batch.
 6. On yes: create all links (MCP batches of ≤10, or one `rh_customers` script). No per-link re-ask.
 7. Re-verify once with bulk `search_links`. Report created / failed / still missing.
-8. Optional (only if asked): bot Jira note + `ai-sdlc-assisted`; unwatch when keep-watcher rules allow.
+8. If the user asked for Jira notes: bot Feature comment + `ai-sdlc-assisted`; unwatch when keep-watcher rules allow.
+9. **Always after a create batch:** log the batch on the DEVO hygiene story (default **DEVO-288**; override with `CUSTOMER_LINKS_DEVO_ISSUE` / `--devo-issue`). Red Hat Employee visibility. Keep watcher on DEVO. No customer names in the log (Feature ← FR + mdm_pk only).
 
 ```bash
 source jira_mcp_env/bin/activate
+# Per-Feature notes (when requested):
 python3 .cursor/skills/virtstrat-customer-links/scripts/post_customer_link_jira_note.py \
   --issue VIRTSTRAT-XXXX --replace-personal-comment
+
+# Batch log on DEVO (required after creates):
+python3 .cursor/skills/virtstrat-customer-links/scripts/log_batch_to_devo.py \
+  --draft virtstrat_customer_links_draft.json
+# dry-run body: add --dry-run
 ```
 
-Comment body (Red Hat Employee only, **no customer names**):
+Feature comment body (Red Hat Employee only, **no customer names**):
 
 `Customer links were updated.` plus AI attribution.
+
+DEVO batch log: summary counts + `VIRTSTRAT-… <- CNV-/MTV-… (mdm_pk=…)` lines from the executed draft.
 
 ## Known caveats
 
